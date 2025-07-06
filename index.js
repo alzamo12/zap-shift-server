@@ -68,6 +68,24 @@ async function run() {
             }
         });
 
+        // GET /parcels?email=sender@example.com
+        // Retrieves parcels for a given sender email, sorted by creation_date descending
+        app.get('/parcels', async (req, res, next) => {
+            try {
+                const { email } = req.query;
+                const filter = email ? { created_by: email } : {};
+
+                const parcels = await parcelCollection
+                    .find(filter)
+                    .sort({ creation_date: -1 })
+                    .toArray();
+
+                res.status(200).json({ success: true, count: parcels.length, data: parcels });
+            } catch (err) {
+                next(err);
+            }
+        });
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
