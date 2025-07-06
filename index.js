@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require("dotenv").config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -81,6 +81,19 @@ async function run() {
                     .toArray();
 
                 res.status(200).json({ success: true, count: parcels.length, data: parcels });
+            } catch (err) {
+                next(err);
+            }
+        });
+
+        app.delete('/parcel/:id', async (req, res, next) => {
+            try {
+                const { id } = req.params;
+                const result = await parcelCollection.deleteOne({ _id: new ObjectId(id) });
+                if (result.deletedCount === 0) {
+                    return res.status(404).json({ success: false, message: 'Parcel not found' });
+                }
+                res.send(result)
             } catch (err) {
                 next(err);
             }
